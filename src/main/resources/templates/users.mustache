@@ -6,10 +6,16 @@
     <title>Document</title>
   </head>
   <body>
-    {{ list.0 }}
-    <h1>array 파일 연결확인</h1>
+    <h1>users 파일 연결확인</h1>
+
+    {{#yougood}}
+    하하하하하하하하
+    {{/yougood}}
+
+    <hr />
     {{#list}}
-    {{.}}
+    {{ id }}
+    {{ username }}
     {{/list}}
   </body>
 </html>
