@@ -1,0 +1,28 @@
+{{> /layout/header}}
+
+<div class="container p-5">
+  <!--요청을 하면 localhos:8080/logout POST로 요청됨
+  username=사용자입력값&password=사용자값 -->
+
+  <div class="card">
+    <div class="card-header"><b>로그아웃 화면입니다</b></div>
+    <div class="card-body">
+
+  <form action="/logout" method="post" enctype="application/x-www-form-urlencoded">
+
+    <div class="mb-3">
+      <input type="text" class="form-control" placeholder="Enter username" name="username" />
+    </div>
+
+    <div class="mb-3">
+      <input type="password" class="form-control" placeholder="Enter password" name="password" />
+    </div>
+    
+      <button type="submit" class="btn btn-primary form-control">로그아웃</button>
+
+  </form>
+</div>
+</div>
+</div>
+
+{{> /layout/footer}}
