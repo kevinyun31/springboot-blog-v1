@@ -7,9 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.jni.Buffer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import shop.mtcoding.blog.dto.JoinDTO;
+import shop.mtcoding.blog.repository.UserRepository;
 
 
 @Controller
@@ -20,16 +24,25 @@ public class UserController {
  // a태그 = 하이퍼링크(무언가를 연결하여 요청)
  // form태그 method=get
 
+ @Autowired    // DB에 접근 하는 것
+private UserRepository userRepository;
 
-    // 정상인
+   // 실무
     @PostMapping("/join")
-    public String join(String username, String password, String email) {
-        // username=ssar&password=1234&email=ssar@nate.com
-        System.out.println("username : " + username);
-        System.out.println("password : " + password);
-        System.out.println("email : " + email);
+    public String join(JoinDTO joinDTO) {
+      userRepository.save(joinDTO);
         return "redirect:/loginForm";
     }
+
+    // 정상인
+    // @PostMapping("/join")
+    // public String join(String username, String password, String email) {
+    //     // username=ssar&password=1234&email=ssar@nate.com
+    //     System.out.println("username : " + username);
+    //     System.out.println("password : " + password);
+    //     System.out.println("email : " + email);
+    //     return "redirect:/loginForm";
+    // }
 
  // 비정상
 // @PostMapping("/join")
