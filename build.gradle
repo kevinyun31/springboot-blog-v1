@@ -4,8 +4,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = 'shop.mtcoding'
-version = '0.0.1-SNAPSHOT'
+ group = 'shop.mtcoding'
+ version = '1.0'
 
 java {
 	sourceCompatibility = '11'
