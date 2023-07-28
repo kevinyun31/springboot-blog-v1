@@ -13,7 +13,12 @@ spring:
   h2:
     console:
       enabled: true
+  sql:
+    init:
+      data-locations:
+      - classpath:db/data.sql
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     show-sql: true

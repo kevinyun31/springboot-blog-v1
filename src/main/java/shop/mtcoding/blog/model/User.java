@@ -1,11 +1,13 @@
 package shop.mtcoding.blog.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import ch.qos.logback.core.joran.spi.NoAutoStart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,9 +20,14 @@ public class User {
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)  // 현재 나의 DB전략에 맞춰서 ID값을 증가시킨다.
  private Integer id;
-
+ 
+ @Column(nullable = false, length = 20, unique = true)
  private String username;
- private String password;
+
+ @Column(nullable = false, length = 20)
+  private String password;
+
+ @Column( nullable = false, length = 20)
  private String email;
   
     
