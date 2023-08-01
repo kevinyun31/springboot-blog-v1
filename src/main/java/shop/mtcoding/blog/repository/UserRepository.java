@@ -19,7 +19,7 @@ public class UserRepository {
 
     @Autowired
     private EntityManager em;
-          
+    
     public User findByUsernameAndPassword(LoginDTO loginDTO){
      Query query = em.createNativeQuery("select * from user_tb where username=:username and password=:password",User.class);
      query.setParameter("username", loginDTO.getUsername());

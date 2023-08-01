@@ -44,7 +44,7 @@ public class UserController {
         }
 
     }
-
+ 
     @PostMapping("/login")
     public String login(LoginDTO loginDTO) {
         // validation check (유효성 검사)
@@ -59,6 +59,7 @@ public class UserController {
         System.out.println("테스트 : username : " + loginDTO.getUsername());
         System.out.println("테스트 : password : " + loginDTO.getPassword());
 
+        // 인증 체크
         try {
             User user = userRepository.findByUsernameAndPassword(loginDTO);
             session.setAttribute("sessionUser", user);
@@ -162,7 +163,7 @@ public class UserController {
     // 로그아웃
     @GetMapping("/logout")
     public String logout() {
-        return "user/logout";
-        // return "redirect:/";
+        session.invalidate();  // 세션 무효화 (내 서랍을 비우는 것)
+    return "redirect:/";
     }
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @Table(name = "user_tb")
-@Entity // ddl-auto가 crdate일때 자동으로 DB가 만들어진다.
+@Entity // ddl-auto가 create일때 자동으로 DB가 만들어진다.
 public class User {
 
  @Id
