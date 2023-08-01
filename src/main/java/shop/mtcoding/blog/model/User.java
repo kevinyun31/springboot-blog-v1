@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import ch.qos.logback.core.joran.spi.NoAutoStart;
 import lombok.Getter;
 import lombok.Setter;
 
