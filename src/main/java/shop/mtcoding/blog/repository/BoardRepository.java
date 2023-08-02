@@ -1,5 +1,6 @@
 package shop.mtcoding.blog.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -17,6 +18,20 @@ public class BoardRepository {
 
 	@Autowired // EntityManager 객체를 자동으로 주입(inject), DB와 상호작용
 	private EntityManager em;
+
+	// select id, title from board_tb
+	// resultClass 안붙이고 직접 파싱하려면!!
+	// Object[]로 리턴됨.
+	// Object[0] = 1
+	// Object[1] = 제목1
+	public int count() {
+		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
+		Query query = em.createNativeQuery("select count(*) from board_tb");
+        // 원래는 Object 배열로 리턴 받는다, Object 배열은 칼럼의 연속이다.
+		// 그룹함수를 써서, 하나의 칼럼을 조회하면 Object로 리턴된다.
+		BigInteger count = (BigInteger) query.getSingleResult();
+		return count.intValue();
+	}
 
 	// localhost:8080?page=0
 	public List<Board> findAll(int page) {
@@ -39,6 +54,13 @@ public class BoardRepository {
 		query.setParameter("content", writeDTO.getContent());
 		query.setParameter("userId", userId);
 		query.executeUpdate();
+	}
+
+	public Board findById(Integer id) {
+		Query query = em.createNativeQuery("select * from board_tb where id = :id", Board.class);
+		query.setParameter("id", id);
+		Board board = (Board) query.getSingleResult();
+		return board;
 	}
 
 }

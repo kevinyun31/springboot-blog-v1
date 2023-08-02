@@ -5,7 +5,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,20 +29,30 @@ public class BoardController {
     // 홈화면 보기
     @GetMapping({ "/", "/board" })
     public String index(@RequestParam(defaultValue = "0") Integer page,
-     HttpServletRequest request) {
+            HttpServletRequest request) {
         // 1. 유효성 검사 X
         // 2. 인증검사 X
         // 3. 조회 쿼리만 있으면 됨.
 
-        List<Board> boardList = boardRepository.findAll(page);
+        List<Board> boardList = boardRepository.findAll(page); // page = 1 일때
+        int totalCount = boardRepository.count(); // totalCount = 5
+
+        int totalPage = totalCount / 3; // totalPage = 1
+        if (totalCount % 3 > 0) {
+            totalPage = totalPage + 1; // totalPage = 2
+        }
+        boolean last = totalPage - 1 == page;
+
         System.out.println("테스트 : " + boardList.size());
         System.out.println("테스트 : " + boardList.get(0).getTitle());
-        
+
         request.setAttribute("boardList", boardList);
-        request.setAttribute("prevPage", page-1);
-        request.setAttribute("nextPage", page+1);
+        request.setAttribute("prevPage", page - 1);
+        request.setAttribute("nextPage", page + 1);
         request.setAttribute("first", page == 0 ? true : false);
-        request.setAttribute("last", false);
+        request.setAttribute("last", last);
+        request.setAttribute("totalPage", totalPage);
+        request.setAttribute("totalCount", totalCount);
 
         return "index";
     }
@@ -79,10 +88,22 @@ public class BoardController {
 
     // localhost:8080/board/1
     // localhost:8080/board/50
-    // 상세보기
+    // 상세보기 - 안에 바디로직은 원래 따로 서비스 클래스로 작성해야 하는 것이다.
     @GetMapping({ "/board/{id}" })
-    public String detail(@PathVariable Integer id) {
-        return "board/detail";
+    public String detail(@PathVariable Integer id, HttpServletRequest request) { // C
+        User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근 권한을 체크하기 위해
+        Board board = boardRepository.findById(id); // M
+
+        boolean pageOwner = false;
+        if (sessionUser != null) {
+            System.out.println("테스트 세션 ID :" + sessionUser.getId());
+            System.out.println("테스트 세션  board.getUser().getId() :" + board.getUser().getId());
+            pageOwner = sessionUser.getId() == board.getUser().getId();
+        }
+
+        request.setAttribute("board", board);
+        request.setAttribute("pageOwner", false);
+        return "board/detail"; // V
     }
 
 }

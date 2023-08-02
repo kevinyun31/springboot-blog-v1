@@ -18,7 +18,7 @@
      {{! disabled = 입력 못 하게 흑백처리 }}
     <ul class="pagination d-flex justify-content-center">
         <li class="page-item {{#first}}disabled{{/first}}"><a class="page-link" href="?page={{prevPage}}">이전</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{nextPage}}">다음</a></li>
+        <li class="page-item {{#last}}disabled{{/last}}"><a class="page-link" href="?page={{nextPage}}">다음</a></li>
     </ul>
 
 </div>

@@ -3,19 +3,23 @@
 <div class="container p-5">
 
   <!-- 수정삭제버튼 -->
+  {{#pageOwner}}
   <div class="d-flex justify-content-end">
     <button class="btn btn-warning me-1">수정</button>
     <button class="btn btn-danger">삭제</button>
   </div>
+{{/pageOwner}}
 
   <!-- 게시글내용 -->
+  {{#board}}
   <div>
-    <h2><b>제목자리</b></h2>
+    <h2><b>{{title}}</b></h2>
     <hr />
     <div class="m-4 p-2">
-      내용입니다
+      {{content}}
     </div>
   </div>
+ {{/board}}
 
   <!-- 댓글 -->
   <div class="card mt-3">
