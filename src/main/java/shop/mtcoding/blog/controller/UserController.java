@@ -1,13 +1,7 @@
 package shop.mtcoding.blog.controller;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.tomcat.jni.Buffer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +38,8 @@ public class UserController {
         }
 
     }
- 
+    
+    // 웹에서의 로그인(login) 요청을 받고 응답(return "redirect:/" 인덱스 홈페이지로)
     @PostMapping("/login")
     public String login(LoginDTO loginDTO) {
         // validation check (유효성 검사)
@@ -71,6 +66,7 @@ public class UserController {
     }
 
     // 실무
+    // 웹에서의 회원가입(join) 요청을 받고 응답(return "redirect:/loginForm"; 로그인 페이지로)
     @PostMapping("/join")
     public String join(JoinDTO joinDTO) {
 

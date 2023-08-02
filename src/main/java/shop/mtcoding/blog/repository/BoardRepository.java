@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
 
-@Repository
+@Repository // DB와 상호작용 저장소
 public class BoardRepository {
 
-	@Autowired // EntityManager 객체를 자동으로 주입(inject), DB와 상호작용
-	private EntityManager em;
+	@Autowired // EntityManager 객체를 자동으로 주입(inject), DB와 상호작용 Repository와 셋트
+	private EntityManager em; // DB를 조회하고 조작할 개체.
 
 	// select id, title from board_tb
 	// resultClass 안붙이고 직접 파싱하려면!!
@@ -27,10 +28,18 @@ public class BoardRepository {
 	public int count() {
 		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
 		Query query = em.createNativeQuery("select count(*) from board_tb");
-        // 원래는 Object 배열로 리턴 받는다, Object 배열은 칼럼의 연속이다.
+		// 원래는 Object 배열로 리턴 받는다, Object 배열은 칼럼의 연속이다.
 		// 그룹함수를 써서, 하나의 칼럼을 조회하면 Object로 리턴된다.
 		BigInteger count = (BigInteger) query.getSingleResult();
 		return count.intValue();
+	}
+
+	public int count2() {
+		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
+		Query query = em.createNativeQuery("select * from board_tb", Board.class);
+
+		List<Board> boardList = query.getResultList();
+		return boardList.size();
 	}
 
 	// localhost:8080?page=0
@@ -44,6 +53,7 @@ public class BoardRepository {
 
 	}
 
+	// save = 글쓰기 화면
 	@Transactional // 인서트,딜리트,업데이트 등을 할때 트레젝션이 롤백과 커밋을 자동으로 해준다.
 	public void save(WriteDTO writeDTO, Integer userId) {
 
@@ -56,6 +66,7 @@ public class BoardRepository {
 		query.executeUpdate();
 	}
 
+	// id 값을 가진 게시글 정보를 조회 후 board에 반환
 	public Board findById(Integer id) {
 		Query query = em.createNativeQuery("select * from board_tb where id = :id", Board.class);
 		query.setParameter("id", id);
@@ -63,4 +74,24 @@ public class BoardRepository {
 		return board;
 	}
 
-}
+	// 삭제버튼 관련
+	@Transactional
+	public void deleteById(Integer id) {
+		Query query = em.createNativeQuery("delete from board_tb where id = :id");
+		query.setParameter("id", id);
+		query.executeUpdate();
+
+	}
+
+	// update = 수정버튼 관련
+	@Transactional
+	public void update(UpdateDTO updateDTO, Integer id) {
+		Query query = em.createNativeQuery("update board_tb set title = :title, content = :content where id = :id");
+		query.setParameter("id", id);
+		query.setParameter("title", updateDTO.getTitle());
+		query.setParameter("content", updateDTO.getContent());
+		query.executeUpdate();
+
+	}
+
+} // class

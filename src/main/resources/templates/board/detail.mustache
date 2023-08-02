@@ -5,10 +5,14 @@
   <!-- 수정삭제버튼 -->
   {{#pageOwner}}
   <div class="d-flex justify-content-end">
-    <button class="btn btn-warning me-1">수정</button>
-    <button class="btn btn-danger">삭제</button>
+    <a class="btn btn-warning me-1" href="/board/{{board.id}}/updateForm">수정</a>
+
+    <form action="/board/{{board.id}}/delete" method="post">
+      <button type="submit" class="btn btn-danger">삭제</button>
+    </form>
+
   </div>
-{{/pageOwner}}
+  {{/pageOwner}}
 
   <!-- 게시글내용 -->
   {{#board}}
@@ -19,7 +23,7 @@
       {{content}}
     </div>
   </div>
- {{/board}}
+  {{/board}}
 
   <!-- 댓글 -->
   <div class="card mt-3">
@@ -60,8 +64,9 @@
           <button class="btn">🗑</button>
         </form>
       </div>
-      
+
     </div>
   </div>
 </div>
+
 {{> /layout/footer}}
