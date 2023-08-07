@@ -6,28 +6,72 @@
 
   <div class="card">
     <div class="card-header"><b>회원가입을 해주세요</b></div>
-    
     <div class="card-body">
-   
-      <form action="/join" method="post" enctype="application/x-www-form-urlencoded">
+
+      <form action="/join" method="post" enctype="application/x-www-form-urlencoded" onsubmit="return valid()">
 
         <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Enter username" name="username" required maxlength="20">
+          <input type="text" id="username" class="form-control" placeholder="Enter username" name="username" required
+            maxlength="20" onchange="usernameChange()">
+          <button type="button" onclick="check()">중복체크</button>
         </div>
 
         <div class="mb-3">
-          <input type="password" class="form-control" placeholder="Enter password" name="password" required maxlength="20">
+          <input type="password" class="form-control" placeholder="Enter password" name="password" required
+            maxlength="20">
         </div>
 
         <div class="mb-3">
           <input type="email" class="form-control" placeholder="Enter email" name="email" required maxlength="20">
         </div>
 
-        <button type="submit" class="btn btn-primary form-control">회원가입</button>
-         
+        <button type="btnJoin" class="btn btn-primary form-control">회원가입</button>
+
       </form>
     </div>
-    
   </div>
 </div>
+
+<script>
+  let usernameSameCheck = false;  // 자바스크립트의 전역변수
+
+  function usernameChange() {
+    console.log("변경됨");
+    usernameSameCheck = false;
+  }
+
+  function valid() {
+    if (usernameSameCheck) {
+      return true;
+    } else {
+      alert("유저네임 중복체크를 해주세요");
+      return false;
+    }
+  }
+
+  // 책임 : input태그로 부터 username을 가져와서 통신을 요청하고, 중복이 되었는지 확인한다.
+  async function check() {
+    // 1. DOM으로 부터 값 가져오기
+    let username = document.querySelector("#username").value;
+    // console.log("유저네임", username);
+
+    // 2. 통신하기
+    let response = await fetch(`/check?username=${username}`);
+
+    // 3. 파싱하기
+    let responseBody = await response.text(); // response.json();
+    console.log
+
+    // 4. 상태코드 확인
+    let btnJoin = document.querySelector("#btnJoin");
+    if (response.status == 200) {
+      alert(responseBody);
+      usernameSameCheck = true;
+    } else {
+      alert(responseBody);
+      usernameSameCheck = false;
+    }
+
+  }
+</script>
 {{> /layout/footer}}

@@ -1,8 +1,11 @@
 package shop.mtcoding.blog.controller;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,16 +30,15 @@ public class UserController {
     @Autowired
     private HttpSession session; // request는 가방, session은 서랍으로 로그인 데이터가 남아있다.
 
-    @ResponseBody
-    @GetMapping("/test/login")
-    public String testLogin() {
-        User sessionUser = (User) session.getAttribute("sessionUser");
-        if (sessionUser == null) {
-            return "로그인이 되지 않았습니다";
-        } else {
-            return "로그인 됨 : " + sessionUser.getUsername();
+    // localhost:8080/check?username=ssar
+    // 회원가입시 중복체크 요청 버튼
+    @GetMapping("/check")
+    public ResponseEntity<String> check(String username) { // 데이터를 응답 @ResponseBody랑 같은 역할
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            return new ResponseEntity<String>("유저네임이 중복 되었습니다", HttpStatus.BAD_REQUEST);
         }
-
+        return new ResponseEntity<String>("유저네임을 사용할 수 있습니다", HttpStatus.OK);
     }
 
     // 웹에서의 로그인(login) 요청을 받고 응답(return "redirect:/" 인덱스 홈페이지로)
@@ -83,16 +85,12 @@ public class UserController {
         }
 
         // DB에 해당 username이 있는지 체크해보기
-        try {
-            // ssar
-            User user = userRepository.findByUsername(joinDTO.getUsername());
+        User user = userRepository.findByUsername(joinDTO.getUsername());
+        if (user != null) {
             return "redirect:/50x";
-        } catch (Exception e) {
-            // ssar1
-            userRepository.save(joinDTO); // 핵심 기능
-            return "redirect:/loginForm";
         }
-
+        userRepository.save(joinDTO); // 핵심 기능
+        return "redirect:/loginForm";
     }
 
     // 정상인
