@@ -38,7 +38,7 @@ public class UserController {
         }
 
     }
-    
+
     // 웹에서의 로그인(login) 요청을 받고 응답(return "redirect:/" 인덱스 홈페이지로)
     @PostMapping("/login")
     public String login(LoginDTO loginDTO) {
@@ -51,8 +51,8 @@ public class UserController {
             return "redirect:/40x";
         }
         // 핵심 기능
-        System.out.println("테스트 : username : " + loginDTO.getUsername());
-        System.out.println("테스트 : password : " + loginDTO.getPassword());
+        // System.out.println("테스트 : username : " + loginDTO.getUsername());
+        // System.out.println("테스트 : password : " + loginDTO.getPassword());
 
         // 인증 체크
         try {
@@ -81,12 +81,18 @@ public class UserController {
         if (joinDTO.getEmail() == null || joinDTO.getEmail().isEmpty()) {
             return "redirect:/40x";
         }
+
+        // DB에 해당 username이 있는지 체크해보기
         try {
-            userRepository.save(joinDTO); // 핵심 기능
-        } catch (Exception e) {
+            // ssar
+            User user = userRepository.findByUsername(joinDTO.getUsername());
             return "redirect:/50x";
+        } catch (Exception e) {
+            // ssar1
+            userRepository.save(joinDTO); // 핵심 기능
+            return "redirect:/loginForm";
         }
-        return "redirect:/loginForm";
+
     }
 
     // 정상인
@@ -159,7 +165,7 @@ public class UserController {
     // 로그아웃
     @GetMapping("/logout")
     public String logout() {
-        session.invalidate();  // 세션 무효화 (내 서랍을 비우는 것)
-    return "redirect:/";
+        session.invalidate(); // 세션 무효화 (내 서랍을 비우는 것)
+        return "redirect:/";
     }
 }

@@ -97,15 +97,15 @@ public class BoardController {
         List<Board> boardList = boardRepository.findAll(page); // page = 1 일때
         int totalCount = boardRepository.count(); // totalCount = 5
 
-        System.out.println("테스트 : totalCount : " + totalCount);
+        // System.out.println("테스트 : totalCount : " + totalCount);
         int totalPage = totalCount / 3; // totalPage = 1
         if (totalCount % 3 > 0) {
             totalPage = totalPage + 1; // totalPage = 2
         }
         boolean last = totalPage - 1 == page;
 
-        System.out.println("테스트 : " + boardList.size());
-        System.out.println("테스트 : " + boardList.get(0).getTitle());
+        // System.out.println("테스트 : " + boardList.size());
+        // System.out.println("테스트 : " + boardList.get(0).getTitle());
 
         request.setAttribute("boardList", boardList);
         request.setAttribute("prevPage", page - 1);
@@ -153,17 +153,17 @@ public class BoardController {
     // localhost:8080/board/50
     // 상세보기 - 안에 바디로직은 원래 따로 서비스 클래스로 작성해야 하는 것이다.
     // 상세화면을 아이디를 찾아서 응답 
-    @GetMapping({ "/board/{id}" })
+    @GetMapping({ "/board/{id}" }) 
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(Controller) = 웹에서 받은 요청을 응답한다.
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근 권한을 체크하기 위해
         Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는 BoardRepository 클래스를 불러 온다
 
         boolean pageOwner = false;
         if (sessionUser != null) {
-            System.out.println("테스트 세션 ID :" + sessionUser.getId());
-            System.out.println("테스트 세션  board.getUser().getId() :" + board.getUser().getId());
+            // System.out.println("테스트 세션 ID :" + sessionUser.getId());
+            // System.out.println("테스트 세션  board.getUser().getId() :" + board.getUser().getId());
             pageOwner = sessionUser.getId() == board.getUser().getId();
-            System.out.println("테스트 : pageOwner : " + pageOwner);
+            // System.out.println("테스트 : pageOwner : " + pageOwner);
         }
 
         request.setAttribute("board", board);
