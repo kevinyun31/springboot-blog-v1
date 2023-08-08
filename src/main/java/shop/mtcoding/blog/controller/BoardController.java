@@ -129,12 +129,13 @@ public class BoardController {
         if (writeDTO.getContent() == null || writeDTO.getContent().isEmpty()) {
             return "redirect:/40x";
         }
-        // 인증 체크
+        // 인증 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
             return "redirect:/loginForm";
         }
-
+        
+    // 글쓰기
         boardRepository.save(writeDTO, sessionUser.getId());
         return "redirect:/";
     }
