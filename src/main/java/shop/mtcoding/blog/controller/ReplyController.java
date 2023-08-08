@@ -24,6 +24,9 @@ public class ReplyController {
     public String save(ReplyWriteDTO replyWriteDTO) {
 
         // comment 유효성 검사 - 댓글을 썼는지 확인
+        if (replyWriteDTO.getBoardId() == null) {
+            return "redirect:/40x";
+        }
         if (replyWriteDTO.getComment() == null || replyWriteDTO.getComment().isEmpty()) {
             return "redirect:/40x";
         }
