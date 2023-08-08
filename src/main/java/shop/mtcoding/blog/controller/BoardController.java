@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import shop.mtcoding.blog.dto.BoardDetailDTO;
 import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
+import shop.mtcoding.blog.model.Reply;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.BoardRepository;
+import shop.mtcoding.blog.repository.ReplyRepository;
 
 @Controller
 public class BoardController {
@@ -28,13 +31,40 @@ public class BoardController {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired
+    private ReplyRepository replyRepository;
+
+    @ResponseBody
+    @GetMapping("/test/reply")
+    public List<Reply> test2(){
+    List<Reply> replys = replyRepository.findByBoardId(1);
+     return replys;
+    }
+
+     // 오브젝트를 리턴하면 json 데이터로 리턴해준다.
+    @ResponseBody
+    @GetMapping("/test/board/1")
+    public Board test() {
+
+        Board board = boardRepository.findById(1);
+        return board;
+    }
+
     // 수정요청 응답
     @PostMapping("/board/{id}/update")
     public String update(@PathVariable Integer id, UpdateDTO updateDTO) { // 1.PathVarible 값 받기
 
         // 1.인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
 
         // 2.권한체크
+        Board board = boardRepository.findById(id);
+        if (board.getUser().getId() != sessionUser.getId()) {
+            return "redirect:/40x";
+        }
 
         // 3.핵심로직 (모델한테 전가한거 받아오고 리턴할 뷰작성)
         // update board_tb set title = :title, content = :content where id = :id
@@ -45,23 +75,24 @@ public class BoardController {
     // 수정화면 호출
     @GetMapping("/board/{id}/updateForm")
     public String updateForm(@PathVariable Integer id, HttpServletRequest request) {
-        // 1. 인증 검사
+        // 1. 인증 검사 (아이디에 대한 세션값이 필요한가 ? post맨으로 우회접근을 하면 필요하지 않을까 ? )
+        User sessionUser = (User) session.getAttribute("sessionUser"); // 권한체크를 위한 세션 접근
+        if (sessionUser == null) {
+            return "redirect:/loginForm"; // 401
+        }
 
-
-
-        // 2. 권한 체크
-
-
+        // 2. 권한 체크 (로그인한 아이디의 세션값과 게시글의 적힌 세션의 값이 동일한지 파악해야 하는가 ? )
+        Board board = boardRepository.findById(id);
+        if (board.getUser().getId() != sessionUser.getId()) {
+            return "redirect:/40x";
+        }
 
         // 3. 핵심 로직
-        Board board = boardRepository.findById(id);
         request.setAttribute("board", board);
-
         return "board/updateForm";
     }
 
-
-    // 삭제버튼 관련 작동 컨트롤
+       // 삭제버튼 관련 작동 컨트롤
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Integer id) { // 1.PathVarible 값 받기
 
@@ -81,11 +112,13 @@ public class BoardController {
         // 3.핵심로직(모델에 접근해서 삭제)
         // boardRepository.deleteById(id); 호출하세요 -> 리턴을 받지 마세요
         // delete from board_tb where id = :id
-        boardRepository.deleteById(id);
-
+        boardRepository.deleteById(id);;
         return "redirect:/";
     }
 
+    // localhost:8080 <= 널값 (왜 널값인데 ? Integer 클래스는 null 값이 허용되니깐)
+    // 그래서 RequestParam(defaultValue = "0") 이거를 넣어서 기본값으로 만들어서
+    // 널값이 안들어 가게 만든다.
     // 홈화면 보기
     @GetMapping({ "/", "/board" })
     public String index(@RequestParam(defaultValue = "0") Integer page,
@@ -134,8 +167,8 @@ public class BoardController {
         if (sessionUser == null) {
             return "redirect:/loginForm";
         }
-        
-    // 글쓰기
+
+        // 글쓰기
         boardRepository.save(writeDTO, sessionUser.getId());
         return "redirect:/";
     }
@@ -152,22 +185,24 @@ public class BoardController {
 
     // localhost:8080/board/1
     // localhost:8080/board/50
-    // 상세보기 - 안에 바디로직은 원래 따로 서비스 클래스로 작성해야 하는 것이다.
-    // 상세화면을 아이디를 찾아서 응답 
-    @GetMapping({ "/board/{id}" }) 
+    // 상세보기 화면에서 아이디를 찾아서 응답
+    @GetMapping("/board/{id}") 
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(Controller) = 웹에서 받은 요청을 응답한다.
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근 권한을 체크하기 위해
-        Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는 BoardRepository 클래스를 불러 온다
+        List<BoardDetailDTO> dtos = boardRepository.findByIdJoinReply(id);
+
+            // Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는 BoardRepository 클래스를 불러 온다
 
         boolean pageOwner = false;
         if (sessionUser != null) {
             // System.out.println("테스트 세션 ID :" + sessionUser.getId());
             // System.out.println("테스트 세션  board.getUser().getId() :" + board.getUser().getId());
-            pageOwner = sessionUser.getId() == board.getUser().getId();
+            pageOwner = sessionUser.getId() == dtos.get(0).getBoardUserId();
+            // pageOwner = sessionUser.getId() == board.getUser().getId();
             // System.out.println("테스트 : pageOwner : " + pageOwner);
         }
-
-        request.setAttribute("board", board);
+ 
+        request.setAttribute("dtos", dtos);
         request.setAttribute("pageOwner", pageOwner);
         return "board/detail"; // V(View) = 웹에 뷰화면을 뿌릴 detail.mustache 클래스를 불러온다.
     }

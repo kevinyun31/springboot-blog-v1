@@ -6,10 +6,12 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.qlrm.mapper.JpaResultMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import shop.mtcoding.blog.dto.BoardDetailDTO;
 import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
@@ -66,6 +68,31 @@ public class BoardRepository {
 		query.executeUpdate();
 	}
 
+	// 게시글 상세보기 - 댓글 리스트 동적쿼리 
+   public List<BoardDetailDTO> findByIdJoinReply(Integer boardId, Integer sessionUserId){
+	 String sql = "select ";  //
+	 		sql += "b.id board_id, ";  //
+	 		sql += "b.content board_content, "; //
+	 		sql += "b.title board_title, "; //
+	 		sql += "b.user_id board_user_id, "; //
+	 		sql += "r.id reply_id, "; //
+	 		sql += "r.comment reply_comment, "; //
+	 		sql += "r.user_id reply_user_id, "; //
+	 		sql += "ru.username reply_user_username "; //
+	 		sql += "from board_tb b left outer join reply_tb r "; //
+	 		sql += "on b.id = r.board_id "; //
+	 		sql += "inner join user_tb ru "; //
+	 		sql += "on r.user_id = ru.id "; //
+	 		sql += "where b.id = :boardId" ;
+			Query query = em.createQuery(sql);
+			query.setParameter("boardId", boardId);
+
+			JpaResultMapper mapper = new JpaResultMapper();
+			List<BoardDetailDTO> dtos = mapper.list(query, BoardDetailDTO);
+			return dtos;
+		   }
+
+
 	// id 값을 가진 게시글 정보를 조회 후 board에 반환
 	public Board findById(Integer id) {
 		Query query = em.createNativeQuery("select * from board_tb where id = :id", Board.class);
@@ -91,7 +118,6 @@ public class BoardRepository {
 		query.setParameter("title", updateDTO.getTitle());
 		query.setParameter("content", updateDTO.getContent());
 		query.executeUpdate();
-
 	}
 
 } // class

@@ -7,16 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import org.hibernate.annotations.GeneratorType;
-import org.hibernate.annotations.ManyToAny;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 // User(1) - Reply(N)
 // Board(1) - Reply(N)
