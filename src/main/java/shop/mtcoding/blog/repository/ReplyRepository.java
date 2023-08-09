@@ -23,6 +23,12 @@ public class ReplyRepository {
 	@Autowired
 	private EntityManager em;
 
+	public Reply findById(int id) {
+        Query query = em.createNativeQuery("select * from reply_tb where id = :id", Reply.class);
+        query.setParameter("id", id);
+        return (Reply) query.getSingleResult();
+    }
+
     // 댓글의 목록을 아이디로 구분하는 쿼리
 	public List<Reply> findByBoardId(Integer boardId) {
 		Query query = em.createNativeQuery("select * from reply_tb where board_id = :boardId", Reply.class);
@@ -44,5 +50,15 @@ public class ReplyRepository {
 		query.setParameter("userId", userId); // 댓글 쓰는 사람의 ID
 		query.executeUpdate(); // 쿼리를 전송
 	}
+
+	@Transactional
+    public void deleteById(Integer id) {
+        Query query = em
+                .createNativeQuery(
+                        "delete from reply_tb where id = :id");
+
+        query.setParameter("id", id);
+        query.executeUpdate();
+    }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.dto.UserUpdateDTO;
 import shop.mtcoding.blog.model.User;
 
 // BoardController, UserController, UserRepository
@@ -40,6 +41,13 @@ public class UserRepository {
         return (User) query.getSingleResult();
     }
 
+    public User findById(Integer id) {
+        Query query = em.createNativeQuery("select * from user_tb where id=:id", User.class);
+        query.setParameter("id", id);
+        User user = (User) query.getSingleResult();
+        return user;
+    }
+
     // 회원가입시 필요한 아이피, 패스워드, 이메일 불러오기
     @Transactional // 인서트,딜리트,업데이트 등을 할때 트레젝션이 롤백과 커밋을 자동으로 해준다.
     public void save(JoinDTO joinDTO) {
@@ -53,6 +61,14 @@ public class UserRepository {
         System.out.println("테스트 : " + 3);
         query.executeUpdate(); // 쿼리를 전송 (DBMS)
         System.out.println("테스트 : " + 4);
+    }
+
+    @Transactional
+    public void update(Integer id, UserUpdateDTO userUpdateDTO) {
+        Query query = em.createNativeQuery("update user_tb set password=:password where id=:id");
+        query.setParameter("id", id);
+        query.setParameter("password", userUpdateDTO.getPassword());
+        query.executeUpdate();
     }
 
 }

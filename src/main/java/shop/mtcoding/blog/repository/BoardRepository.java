@@ -60,11 +60,12 @@ public class BoardRepository {
 	public void save(WriteDTO writeDTO, Integer userId) {
 
 		Query query = em.createNativeQuery(
-				"insert into board_tb(title, content, user_id, created_at) values(:title, :content, :userId, :now())");
+				"insert into board_tb(title, content, user_id, created_at) values(:title, :content, :userId, :createdAt)");
 
 		query.setParameter("title", writeDTO.getTitle());
 		query.setParameter("content", writeDTO.getContent());
 		query.setParameter("userId", userId);
+		query.setParameter("createdAt", writeDTO.getCreatedAt());
 		query.executeUpdate();
 	}
 

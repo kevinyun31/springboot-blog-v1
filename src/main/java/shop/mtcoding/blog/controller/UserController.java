@@ -8,11 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.dto.UserUpdateDTO;
+import shop.mtcoding.blog.model.Board;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.UserRepository;
 
@@ -39,6 +42,17 @@ public class UserController {
             return new ResponseEntity<String>("유저네임이 중복 되었습니다", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<String>("유저네임을 사용할 수 있습니다", HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @GetMapping("/test/login")
+    public String testLogin() {
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "로그인이 되지 않았습니다";
+        } else {
+            return "로그인 됨 : " + sessionUser.getUsername();
+        }
     }
 
     // 웹에서의 로그인(login) 요청을 받고 응답(return "redirect:/" 인덱스 홈페이지로)
@@ -154,9 +168,13 @@ public class UserController {
         return "user/loginForm";
     }
 
-    // 회원수정
+    // 회원수정 화면호출
     @GetMapping("/user/updateForm")
     public String updateForm() {
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
         return "user/updateForm";
     }
 
@@ -166,4 +184,26 @@ public class UserController {
         session.invalidate(); // 세션 무효화 (내 서랍을 비우는 것)
         return "redirect:/";
     }
+
+    // 회원수정 할수 있는 기능
+ @PostMapping("/user/{id}/update")
+ public String update(@PathVariable Integer id, UserUpdateDTO userUpdateDTO){
+      // 1.인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        // 2.권한체크
+        User user = userRepository.findById(id);
+        if (sessionUser.getId() != user.getId()) {
+            return "redirect:/40x";
+        }
+
+        // 3.핵심로직 (모델한테 전가한거 받아오고 리턴할 뷰작성)
+        // update board_tb set title = :title, content = :content where id = :id
+        userRepository.update(id, userUpdateDTO);
+        return "redirect:/";
+ }
+
 }

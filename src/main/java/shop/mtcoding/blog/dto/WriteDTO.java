@@ -17,5 +17,8 @@ import lombok.Setter;
 public class WriteDTO {
     private String title;
     private String content;
+    public Object getCreatedAt() {
+        return null;
+    }
 
 }

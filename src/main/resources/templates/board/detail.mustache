@@ -15,7 +15,7 @@
   {{/pageOwner}}
 
   <!-- 게시글내용 -->
-  
+
   <div>
     <h2><b>{{dtos.0.boardTitle}}</b></h2>
     <hr />
@@ -23,7 +23,7 @@
       {{dtos.0.boardContent}}
     </div>
   </div>
-  
+
   <!-- 댓글 -->
   <div class="card mt-3">
     <!-- 댓글등록 -->
@@ -54,19 +54,18 @@
           <div class="px-1 me-1 bg-primary text-white rounded">{{replyUserUsername}}</div>
           <div>{{replyComment}}</div>
         </div>
+
         {{#replyOwner}}
         <form action="/reply/{{replyId}}/delete" method="post">
-          <input type="hidden" name="boardId" value="{{boardId}}"/>
+          <input type="hidden" name="boardId" value="{{boardId}}" />
           <button class="btn">🗑</button>
         </form>
         {{/replyOwner}}
       </div>
       {{/replyId}}
       {{/dtos}}
-      
     </div>
   </div>
 </div>
 
 {{> /layout/footer}}
-

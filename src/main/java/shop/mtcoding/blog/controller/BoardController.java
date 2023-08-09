@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import shop.mtcoding.blog.dto.BoardDetailDTO;
+import shop.mtcoding.blog.dto.BoardDetailDTOV2;
 import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
@@ -92,11 +93,11 @@ public class BoardController {
         return "board/updateForm";
     }
 
-       // 삭제버튼 관련 작동 컨트롤
+       // 글 삭제버튼 관련 작동 컨트롤
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Integer id) { // 1.PathVarible 값 받기
 
-        // 1.인증검사 (로그인 페이지 보내기)
+        // 2.인증검사 (로그인 페이지 보내기)
         // session에 접근해서 sessionUser 키값을 가져오세요
         // null 이면, 로그인페이지로 보내고
         // null 아니면, 3번을 실행하세요
@@ -104,18 +105,19 @@ public class BoardController {
         if (sessionUser == null) {
             return "redirect:/loginForm"; // 401 미승인
         }
-        // 2.권한검사
+        // 3.권한검사
         Board board = boardRepository.findById(id);
         if (board.getUser().getId() != sessionUser.getId()) {
             return "redirect:/40x"; // 403 권한없음
         }
-        // 3.핵심로직(모델에 접근해서 삭제)
+        // 4.핵심로직(모델에 접근해서 삭제)
         // boardRepository.deleteById(id); 호출하세요 -> 리턴을 받지 마세요
         // delete from board_tb where id = :id
         boardRepository.deleteById(id);;
         return "redirect:/";
     }
 
+      
     // localhost:8080 <= 널값 (왜 널값인데 ? Integer 클래스는 null 값이 허용되니깐)
     // 그래서 RequestParam(defaultValue = "0") 이거를 넣어서 기본값으로 만들어서
     // 널값이 안들어 가게 만든다.
@@ -154,7 +156,7 @@ public class BoardController {
     // 글쓰는 화면에서 글을 입력하기
     @PostMapping("/board/save")
     public String save(WriteDTO writeDTO) {
-        // validation check (유효성 검사)
+        // validation check (유효성 검사) null값인지 확인
         if (writeDTO.getTitle() == null || writeDTO.getTitle().isEmpty()) {
             return "redirect:/40x";
         }
@@ -162,7 +164,7 @@ public class BoardController {
         if (writeDTO.getContent() == null || writeDTO.getContent().isEmpty()) {
             return "redirect:/40x";
         }
-        // 인증 검사
+        // 인증 검사 - 글쓴 유저가 로그인한 유저인지 아님 로그인 안했는지 걸러냄
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
             return "redirect:/loginForm";
@@ -182,7 +184,35 @@ public class BoardController {
         }
         return "board/saveForm";
     }
+    @ResponseBody
+    @GetMapping("/v1/board/{id}")
+    public List<BoardDetailDTO> detailV1(@PathVariable Integer id) {
+        User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근
+        List<BoardDetailDTO> dtos = null;
+        if (sessionUser == null) {
+            dtos = boardRepository.findByIdJoinReply(id, null);
+        } else {
+            dtos = boardRepository.findByIdJoinReply(id, sessionUser.getId());
+        }
+        return dtos;
+    }
 
+    @ResponseBody
+    @GetMapping("/v2/board/{id}")
+    public BoardDetailDTOV2 detailV2(@PathVariable Integer id) {
+        User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근
+        List<BoardDetailDTO> dtos = null;
+        BoardDetailDTOV2 dtoV2 = null;
+        if (sessionUser == null) {
+            dtos = boardRepository.findByIdJoinReply(id, null);
+            dtoV2 = new BoardDetailDTOV2(dtos, null);
+        } else {
+            dtos = boardRepository.findByIdJoinReply(id, sessionUser.getId());
+            dtoV2 = new BoardDetailDTOV2(dtos, sessionUser.getId());
+        }
+
+        return dtoV2;
+    }
     // localhost:8080/board/1
     // localhost:8080/board/50
     // 상세보기 화면에서 아이디를 찾아서 응답
