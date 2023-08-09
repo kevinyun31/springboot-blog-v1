@@ -48,16 +48,20 @@
 
       <!-- 댓글아이템 -->
       {{#dtos}}
-      
+      {{#replyId}}
       <div class="list-group-item d-flex justify-content-between align-items-center">
         <div class="d-flex">
           <div class="px-1 me-1 bg-primary text-white rounded">{{replyUserUsername}}</div>
           <div>{{replyComment}}</div>
         </div>
+        {{#replyOwner}}
         <form action="/reply/{{replyId}}/delete" method="post">
+          <input type="hidden" name="boardId" value="{{boardId}}"/>
           <button class="btn">🗑</button>
         </form>
+        {{/replyOwner}}
       </div>
+      {{/replyId}}
       {{/dtos}}
       
     </div>
@@ -65,3 +69,4 @@
 </div>
 
 {{> /layout/footer}}
+

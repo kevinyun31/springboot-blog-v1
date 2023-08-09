@@ -16,5 +16,19 @@ public class BoardDetailDTO {
     private String replyComment;
     private Integer replyUserId;
     private String replyUserUsername;
+    private boolean replyOwner; // DB에서 만들어 오세요
+
+    public BoardDetailDTO(Integer boardId, String boardContent, String boardTitle, Integer boardUserId, Integer replyId,
+            String replyComment, Integer replyUserId, String replyUserUsername, boolean replyOwner) {
+        this.boardId = boardId;
+        this.boardContent = boardContent;
+        this.boardTitle = boardTitle;
+        this.boardUserId = boardUserId;
+        this.replyId = replyId;
+        this.replyComment = replyComment;
+        this.replyUserId = replyUserId;
+        this.replyUserUsername = replyUserUsername;
+        this.replyOwner = replyOwner;
+    }
 
 }

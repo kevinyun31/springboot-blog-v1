@@ -45,7 +45,6 @@ public class BoardController {
     @ResponseBody
     @GetMapping("/test/board/1")
     public Board test() {
-
         Board board = boardRepository.findById(1);
         return board;
     }
@@ -69,6 +68,7 @@ public class BoardController {
         // 3.핵심로직 (모델한테 전가한거 받아오고 리턴할 뷰작성)
         // update board_tb set title = :title, content = :content where id = :id
         boardRepository.update(updateDTO, id);
+
         return "redirect:/board/" + id;
     }
 
@@ -104,7 +104,7 @@ public class BoardController {
         if (sessionUser == null) {
             return "redirect:/loginForm"; // 401 미승인
         }
-        // 2.권한체크
+        // 2.권한검사
         Board board = boardRepository.findById(id);
         if (board.getUser().getId() != sessionUser.getId()) {
             return "redirect:/40x"; // 403 권한없음
@@ -189,8 +189,13 @@ public class BoardController {
     @GetMapping("/board/{id}") 
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(Controller) = 웹에서 받은 요청을 응답한다.
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근 권한을 체크하기 위해
-        List<BoardDetailDTO> dtos = boardRepository.findByIdJoinReply(id);
+        List<BoardDetailDTO> dtos = null;
 
+        if (sessionUser == null) {
+            dtos = boardRepository.findByIdJoinReply(id, null);
+        }else{
+            dtos = boardRepository.findByIdJoinReply(id, sessionUser.getId());
+        }
             // Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는 BoardRepository 클래스를 불러 온다
 
         boolean pageOwner = false;
