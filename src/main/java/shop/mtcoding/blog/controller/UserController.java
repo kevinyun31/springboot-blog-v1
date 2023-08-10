@@ -1,8 +1,10 @@
 package shop.mtcoding.blog.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,19 +64,23 @@ public class UserController {
         if (loginDTO.getUsername() == null || loginDTO.getUsername().isEmpty()) {
             return "redirect:/40x";
         }
-
         if (loginDTO.getPassword() == null || loginDTO.getPassword().isEmpty()) {
             return "redirect:/40x";
         }
+
         // 핵심 기능
         // System.out.println("테스트 : username : " + loginDTO.getUsername());
         // System.out.println("테스트 : password : " + loginDTO.getPassword());
 
-        // 인증 체크
         try {
-            User user = userRepository.findByUsernameAndPassword(loginDTO);
-            session.setAttribute("sessionUser", user);
-            return "redirect:/";
+            User user = userRepository.findByUsername(loginDTO.getUsername());
+            boolean isValid = BCrypt.checkpw(loginDTO.getPassword(), user.getPassword());
+            if (isValid) {
+                session.setAttribute("sessionUser", user);
+                return "redirect:/";
+            } else {
+                return "redirect:/loginForm";
+            }
         } catch (Exception e) {
             return "redirect:/exLogin";
         }
@@ -103,9 +109,42 @@ public class UserController {
         if (user != null) {
             return "redirect:/50x";
         }
+
+        // 비밀번호 암호화
+        String encdPassword = BCrypt.hashpw(joinDTO.getPassword(), BCrypt.gensalt());
+        joinDTO.setPassword(encdPassword); // 암호화된 비밀번호로 변경
+        System.out.println("테스트 encdPassword : " + encdPassword);
+        System.out.println(encdPassword.length());
+
         userRepository.save(joinDTO); // 핵심 기능
         return "redirect:/loginForm";
     }
+
+    // 실무
+    // 웹에서의 회원가입(join) 요청을 받고 응답(return "redirect:/loginForm"; 로그인 페이지로)
+    // @PostMapping("/join")
+    // public String join(JoinDTO joinDTO) {
+
+    // // validation check (유효성 검사)
+    // if (joinDTO.getUsername() == null || joinDTO.getUsername().isEmpty()) {
+    // return "redirect:/40x";
+    // }
+
+    // if (joinDTO.getPassword() == null || joinDTO.getPassword().isEmpty()) {
+    // return "redirect:/40x";
+    // }
+    // if (joinDTO.getEmail() == null || joinDTO.getEmail().isEmpty()) {
+    // return "redirect:/40x";
+    // }
+
+    // // DB에 해당 username이 있는지 체크해보기
+    // User user = userRepository.findByUsername(joinDTO.getUsername());
+    // if (user != null) {
+    // return "redirect:/50x";
+    // }
+    // userRepository.save(joinDTO); // 핵심 기능
+    // return "redirect:/loginForm";
+    // }
 
     // 정상인
     // @PostMapping("/join")
@@ -170,11 +209,17 @@ public class UserController {
 
     // 회원수정 화면호출
     @GetMapping("/user/updateForm")
-    public String updateForm() {
+    public String updateForm(HttpServletRequest request) {
+        // 1.인증검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
-            return "redirect:/loginForm";
+            return "redirect:/loginForm"; // 401
         }
+
+        // 유니크는 인덱스를 탄다.
+        User user = userRepository.findByUsername(sessionUser.getUsername());
+        request.setAttribute("user", user);
+
         return "user/updateForm";
     }
 
@@ -186,9 +231,9 @@ public class UserController {
     }
 
     // 회원수정 할수 있는 기능
- @PostMapping("/user/{id}/update")
- public String update(@PathVariable Integer id, UserUpdateDTO userUpdateDTO){
-      // 1.인증검사
+    @PostMapping("/user/{id}/update")
+    public String update(@PathVariable Integer id, UserUpdateDTO userUpdateDTO) {
+        // 1.인증검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
             return "redirect:/loginForm";
@@ -204,6 +249,6 @@ public class UserController {
         // update board_tb set title = :title, content = :content where id = :id
         userRepository.update(id, userUpdateDTO);
         return "redirect:/";
- }
+    }
 
 }

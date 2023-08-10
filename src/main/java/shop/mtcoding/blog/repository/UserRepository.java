@@ -41,10 +41,11 @@ public class UserRepository {
         return (User) query.getSingleResult();
     }
 
+    // 로그인시 필요한 아이디만 불러오기
     public User findById(Integer id) {
         Query query = em.createNativeQuery("select * from user_tb where id=:id", User.class);
         query.setParameter("id", id);
-        User user = (User) query.getSingleResult();
+        User user = (User) query.getSingleResult(); // getSingle인 이유 아이디는 하나의 값이라서
         return user;
     }
 
@@ -62,7 +63,8 @@ public class UserRepository {
         query.executeUpdate(); // 쿼리를 전송 (DBMS)
         System.out.println("테스트 : " + 4);
     }
-
+ 
+    // 회원정보 수정 
     @Transactional
     public void update(Integer id, UserUpdateDTO userUpdateDTO) {
         Query query = em.createNativeQuery("update user_tb set password=:password where id=:id");

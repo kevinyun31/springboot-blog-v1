@@ -37,12 +37,12 @@ public class BoardController {
 
     @ResponseBody
     @GetMapping("/test/reply")
-    public List<Reply> test2(){
-    List<Reply> replys = replyRepository.findByBoardId(1);
-     return replys;
+    public List<Reply> test2() {
+        List<Reply> replys = replyRepository.findByBoardId(1);
+        return replys;
     }
 
-     // 오브젝트를 리턴하면 json 데이터로 리턴해준다.
+    // 오브젝트를 리턴하면 json 데이터로 리턴해준다.
     @ResponseBody
     @GetMapping("/test/board/1")
     public Board test() {
@@ -93,7 +93,7 @@ public class BoardController {
         return "board/updateForm";
     }
 
-       // 글 삭제버튼 관련 작동 컨트롤
+    // 글 삭제버튼 관련 작동 컨트롤
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Integer id) { // 1.PathVarible 값 받기
 
@@ -113,24 +113,33 @@ public class BoardController {
         // 4.핵심로직(모델에 접근해서 삭제)
         // boardRepository.deleteById(id); 호출하세요 -> 리턴을 받지 마세요
         // delete from board_tb where id = :id
-        boardRepository.deleteById(id);;
+        boardRepository.deleteById(id);
+        ;
         return "redirect:/";
     }
 
-      
     // localhost:8080 <= 널값 (왜 널값인데 ? Integer 클래스는 null 값이 허용되니깐)
     // 그래서 RequestParam(defaultValue = "0") 이거를 넣어서 기본값으로 만들어서
     // 널값이 안들어 가게 만든다.
     // 홈화면 보기
     @GetMapping({ "/", "/board" })
-    public String index(@RequestParam(defaultValue = "0") Integer page,
+    public String index(
+            String keyword,
+            @RequestParam(defaultValue = "0") Integer page,
             HttpServletRequest request) {
         // 1. 유효성 검사 X
         // 2. 인증검사 X
         // 3. 조회 쿼리만 있으면 됨.
 
-        List<Board> boardList = boardRepository.findAll(page); // page = 1 일때
-        int totalCount = boardRepository.count(); // totalCount = 5
+        List<Board> boardList = null;
+        int totalCount = 0;
+        if (keyword == null) {
+             boardList = boardRepository.findAll(page); // page = 1 
+             totalCount = boardRepository.count();
+        } else {
+             boardList = boardRepository.findAll(page, keyword); // page = 1 
+             totalCount = boardRepository.count(); 
+        }
 
         // System.out.println("테스트 : totalCount : " + totalCount);
         int totalPage = totalCount / 3; // totalPage = 1
@@ -184,6 +193,7 @@ public class BoardController {
         }
         return "board/saveForm";
     }
+
     @ResponseBody
     @GetMapping("/v1/board/{id}")
     public List<BoardDetailDTO> detailV1(@PathVariable Integer id) {
@@ -213,30 +223,33 @@ public class BoardController {
 
         return dtoV2;
     }
+
     // localhost:8080/board/1
     // localhost:8080/board/50
     // 상세보기 화면에서 아이디를 찾아서 응답
-    @GetMapping("/board/{id}") 
+    @GetMapping("/board/{id}")
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(Controller) = 웹에서 받은 요청을 응답한다.
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근 권한을 체크하기 위해
         List<BoardDetailDTO> dtos = null;
 
         if (sessionUser == null) {
             dtos = boardRepository.findByIdJoinReply(id, null);
-        }else{
+        } else {
             dtos = boardRepository.findByIdJoinReply(id, sessionUser.getId());
         }
-            // Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는 BoardRepository 클래스를 불러 온다
+        // Board board = boardRepository.findById(id); // M(Model) = 모델역할을 하는
+        // BoardRepository 클래스를 불러 온다
 
         boolean pageOwner = false;
         if (sessionUser != null) {
             // System.out.println("테스트 세션 ID :" + sessionUser.getId());
-            // System.out.println("테스트 세션  board.getUser().getId() :" + board.getUser().getId());
+            // System.out.println("테스트 세션 board.getUser().getId() :" +
+            // board.getUser().getId());
             pageOwner = sessionUser.getId() == dtos.get(0).getBoardUserId();
             // pageOwner = sessionUser.getId() == board.getUser().getId();
             // System.out.println("테스트 : pageOwner : " + pageOwner);
         }
- 
+
         request.setAttribute("dtos", dtos);
         request.setAttribute("pageOwner", pageOwner);
         return "board/detail"; // V(View) = 웹에 뷰화면을 뿌릴 detail.mustache 클래스를 불러온다.

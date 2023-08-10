@@ -36,6 +36,16 @@ public class BoardRepository {
 		return count.intValue();
 	}
 
+	public int count(String keyword) {
+		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
+		Query query = em.createNativeQuery("select count(*) from board_tb where title like :keyword");
+		query.setParameter("keyword", "%" + keyword + "%");
+		// 원래는 Object 배열로 리턴 받는다, Object 배열은 칼럼의 연속이다.
+		// 그룹함수를 써서, 하나의 칼럼을 조회하면 Object로 리턴된다.
+		BigInteger count = (BigInteger) query.getSingleResult();
+		return count.intValue();
+	}
+
 	public int count2() {
 		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
 		Query query = em.createNativeQuery("select * from board_tb", Board.class);
@@ -45,7 +55,18 @@ public class BoardRepository {
 	}
 
 	// localhost:8080?page=0
+	// 보드 게시판 페이지
 	public List<Board> findAll(int page) {
+		// 페이징커리 변하지 않는
+		final int SIZE = 3;
+		Query query = em.createNativeQuery("select * from board_tb order by id desc limit :page, :size", Board.class);
+		query.setParameter("page", page * SIZE);
+		query.setParameter("size", SIZE);
+		return query.getResultList();
+
+	}
+   // 보드 게시판 페이지 오버로딩 
+	public List<Board> findAll(int page, String keyword) {
 		// 페이징커리 변하지 않는
 		final int SIZE = 3;
 		Query query = em.createNativeQuery("select * from board_tb order by id desc limit :page, :size", Board.class);
