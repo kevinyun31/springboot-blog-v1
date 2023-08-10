@@ -98,14 +98,14 @@ public class BoardController {
     public String delete(@PathVariable Integer id) { // 1.PathVarible 값 받기
 
         // 2.인증검사 (로그인 페이지 보내기)
-        // session에 접근해서 sessionUser 키값을 가져오세요
+        // session에 접근해서 sessionUser 키값을 가져오기
         // null 이면, 로그인페이지로 보내고
         // null 아니면, 3번을 실행하세요
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
             return "redirect:/loginForm"; // 401 미승인
         }
-        // 3.권한검사
+        // 3.권한검사 - 글쓴아이디만 삭제 할 수 있게 검증
         Board board = boardRepository.findById(id);
         if (board.getUser().getId() != sessionUser.getId()) {
             return "redirect:/40x"; // 403 권한없음
@@ -114,8 +114,8 @@ public class BoardController {
         // boardRepository.deleteById(id); 호출하세요 -> 리턴을 받지 마세요
         // delete from board_tb where id = :id
         boardRepository.deleteById(id);
-        ;
-        return "redirect:/";
+
+        return "redirect:/"; // 삭제 완료 후 홈화면으로 이동~!
     }
 
     // localhost:8080 <= 널값 (왜 널값인데 ? Integer 클래스는 null 값이 허용되니깐)
@@ -124,21 +124,26 @@ public class BoardController {
     // 홈화면 보기
     @GetMapping({ "/", "/board" })
     public String index(
-            String keyword,
+            @RequestParam(defaultValue = "") String keyword, // 키워드 파라미터 추가
             @RequestParam(defaultValue = "0") Integer page,
             HttpServletRequest request) {
         // 1. 유효성 검사 X
         // 2. 인증검사 X
         // 3. 조회 쿼리만 있으면 됨.
-
+        System.out.println("테스트 : keyword : " + keyword);
+        System.out.println("테스트 : keyword length : " + keyword.length());
+        System.out.println("테스트 : keyword isEmpty : " + keyword.isEmpty()); // isEmpty
+        System.out.println("테스트 : keyword isBlank : " + keyword.isBlank()); // isBlank
+      
         List<Board> boardList = null;
         int totalCount = 0;
+        request.setAttribute("keyword", keyword); // 공백 or 값있음
         if (keyword == null) {
-             boardList = boardRepository.findAll(page); // page = 1 
-             totalCount = boardRepository.count();
+            boardList = boardRepository.findAll(page); // 페이지와 관련된 게시물 목록 가져오기
+            totalCount = boardRepository.count(); // 모든 게시물 수 가져오기
         } else {
-             boardList = boardRepository.findAll(page, keyword); // page = 1 
-             totalCount = boardRepository.count(); 
+            boardList = boardRepository.findAll(page, keyword); // 키워드로 검색한 페이지의 게시물 목록 가져오기
+            totalCount = boardRepository.count(keyword);; // 키워드로 검색한 모든 게시물 수 가져오기
         }
 
         // System.out.println("테스트 : totalCount : " + totalCount);
@@ -158,29 +163,35 @@ public class BoardController {
         request.setAttribute("last", last);
         request.setAttribute("totalPage", totalPage);
         request.setAttribute("totalCount", totalCount);
-
+        
         return "index";
     }
 
     // 글쓰는 화면에서 글을 입력하기
+    // @PostMapping("/board/save")
+    // public String save(WriteDTO writeDTO) {
+    //     // validation check (유효성 검사) null값인지 확인
+    //     if (writeDTO.getTitle() == null || writeDTO.getTitle().isEmpty()) {
+    //         return "redirect:/40x";
+    //     }
+
+    //     if (writeDTO.getContent() == null || writeDTO.getContent().isEmpty()) {
+    //         return "redirect:/40x";
+    //     }
+    //     // 인증 검사 - 글쓴 유저가 로그인한 유저인지 아님 로그인 안했는지 걸러냄
+    //     User sessionUser = (User) session.getAttribute("sessionUser");
+    //     if (sessionUser == null) {
+    //         return "redirect:/loginForm";
+    //     }
+
+    //     // 글쓰기
+    //     boardRepository.save(writeDTO, sessionUser.getId());
+    //     return "redirect:/"; // 글 작성 후 인덱스(홈) 화면으로 돌아가기
+    // }
+     // 글쓰는 화면에서 글을 입력하기 로그인을 한 후 글쓰기가 가능해서 코드가 줄어든다
     @PostMapping("/board/save")
     public String save(WriteDTO writeDTO) {
-        // validation check (유효성 검사) null값인지 확인
-        if (writeDTO.getTitle() == null || writeDTO.getTitle().isEmpty()) {
-            return "redirect:/40x";
-        }
-
-        if (writeDTO.getContent() == null || writeDTO.getContent().isEmpty()) {
-            return "redirect:/40x";
-        }
-        // 인증 검사 - 글쓴 유저가 로그인한 유저인지 아님 로그인 안했는지 걸러냄
-        User sessionUser = (User) session.getAttribute("sessionUser");
-        if (sessionUser == null) {
-            return "redirect:/loginForm";
-        }
-
-        // 글쓰기
-        boardRepository.save(writeDTO, sessionUser.getId());
+        boardRepository.save(writeDTO, 1);
         return "redirect:/";
     }
 

@@ -39,19 +39,15 @@ public class BoardRepository {
 	public int count(String keyword) {
 		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
 		Query query = em.createNativeQuery("select count(*) from board_tb where title like :keyword");
+
+		
+		// 키워드를 포함하는 어떤 문자열을 찾는 데 사용됩니다. "%"는 와일드카드로서 모든 문자열을 의미합니다.
 		query.setParameter("keyword", "%" + keyword + "%");
-		// 원래는 Object 배열로 리턴 받는다, Object 배열은 칼럼의 연속이다.
+
 		// 그룹함수를 써서, 하나의 칼럼을 조회하면 Object로 리턴된다.
 		BigInteger count = (BigInteger) query.getSingleResult();
+
 		return count.intValue();
-	}
-
-	public int count2() {
-		// Entity(Board, User) 타입이 아니어도, 기본 자료형은 안된다
-		Query query = em.createNativeQuery("select * from board_tb", Board.class);
-
-		List<Board> boardList = query.getResultList();
-		return boardList.size();
 	}
 
 	// localhost:8080?page=0
@@ -62,16 +58,20 @@ public class BoardRepository {
 		Query query = em.createNativeQuery("select * from board_tb order by id desc limit :page, :size", Board.class);
 		query.setParameter("page", page * SIZE);
 		query.setParameter("size", SIZE);
+		
 		return query.getResultList();
 
 	}
-   // 보드 게시판 페이지 오버로딩 
+
+	// 보드 게시판 페이지 오버로딩
 	public List<Board> findAll(int page, String keyword) {
 		// 페이징커리 변하지 않는
 		final int SIZE = 3;
-		Query query = em.createNativeQuery("select * from board_tb order by id desc limit :page, :size", Board.class);
+		Query query = em.createNativeQuery("select * from board_tb where title like :keyword order by id desc limit :page, :size", Board.class);
 		query.setParameter("page", page * SIZE);
 		query.setParameter("size", SIZE);
+		query.setParameter("keyword", "%" + keyword + "%");
+		
 		return query.getResultList();
 
 	}
@@ -92,37 +92,37 @@ public class BoardRepository {
 
 	// 게시글 상세보기 - 댓글 리스트 동적쿼리
 	public List<BoardDetailDTO> findByIdJoinReply(Integer boardId, Integer sessionUserId) {
-        String sql = "select ";
-        sql += "b.id board_id, ";
-        sql += "b.content board_content, ";
-        sql += "b.title board_title, ";
-        sql += "b.user_id board_user_id, ";
-        sql += "r.id reply_id, ";
-        sql += "r.comment reply_comment, ";
-        sql += "r.user_id reply_user_id, ";
-        sql += "ru.username reply_user_username, ";
-        if (sessionUserId == null) {
-            sql += "false reply_owner ";
-        } else {
-            sql += "case when r.user_id = :sessionUserId then true else false end reply_owner ";
-        }
+		String sql = "select ";
+		sql += "b.id board_id, ";
+		sql += "b.content board_content, ";
+		sql += "b.title board_title, ";
+		sql += "b.user_id board_user_id, ";
+		sql += "r.id reply_id, ";
+		sql += "r.comment reply_comment, ";
+		sql += "r.user_id reply_user_id, ";
+		sql += "ru.username reply_user_username, ";
+		if (sessionUserId == null) {
+			sql += "false reply_owner ";
+		} else {
+			sql += "case when r.user_id = :sessionUserId then true else false end reply_owner ";
+		}
 
-        sql += "from board_tb b left outer join reply_tb r ";
-        sql += "on b.id = r.board_id ";
-        sql += "left outer join user_tb ru ";
-        sql += "on r.user_id = ru.id ";
-        sql += "where b.id = :boardId ";
-        sql += "order by r.id desc";
-        Query query = em.createNativeQuery(sql);
-        query.setParameter("boardId", boardId);
-        if (sessionUserId != null) {
-            query.setParameter("sessionUserId", sessionUserId);
-        }
+		sql += "from board_tb b left outer join reply_tb r ";
+		sql += "on b.id = r.board_id ";
+		sql += "left outer join user_tb ru ";
+		sql += "on r.user_id = ru.id ";
+		sql += "where b.id = :boardId ";
+		sql += "order by r.id desc";
+		Query query = em.createNativeQuery(sql);
+		query.setParameter("boardId", boardId);
+		if (sessionUserId != null) {
+			query.setParameter("sessionUserId", sessionUserId);
+		}
 
-        JpaResultMapper mapper = new JpaResultMapper();
-        List<BoardDetailDTO> dtos = mapper.list(query, BoardDetailDTO.class);
-        return dtos;
-    }
+		JpaResultMapper mapper = new JpaResultMapper();
+		List<BoardDetailDTO> dtos = mapper.list(query, BoardDetailDTO.class);
+		return dtos;
+	}
 
 	// id 값을 가진 게시글 정보를 조회 후 board에 반환
 	public Board findById(Integer id) {

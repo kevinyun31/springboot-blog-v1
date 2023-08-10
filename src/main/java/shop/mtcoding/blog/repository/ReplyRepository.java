@@ -23,13 +23,14 @@ public class ReplyRepository {
 	@Autowired
 	private EntityManager em;
 
+	// 댓글을 아이디별로 구분
 	public Reply findById(int id) {
         Query query = em.createNativeQuery("select * from reply_tb where id = :id", Reply.class);
         query.setParameter("id", id);
         return (Reply) query.getSingleResult();
     }
 
-    // 댓글의 목록을 아이디로 구분하는 쿼리
+    // 댓글의 목록을 아이디로 관리하는 
 	public List<Reply> findByBoardId(Integer boardId) {
 		Query query = em.createNativeQuery("select * from reply_tb where board_id = :boardId", Reply.class);
 		query.setParameter("boardId", boardId);
@@ -51,6 +52,7 @@ public class ReplyRepository {
 		query.executeUpdate(); // 쿼리를 전송
 	}
 
+	// 댓글 삭제 기능
 	@Transactional
     public void deleteById(Integer id) {
         Query query = em

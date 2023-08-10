@@ -6,11 +6,27 @@
     </div>
 
     <div class="mb-2 d-flex justify-content-end">
-        <form class="d-flex" action="/" method="get">
-            <input class="form-control me-2" type="text" name="keyword" placeholder="Search" required>
+        <form class="d-flex" action="/" method="get" onsubmit="return valid()">
+            <input id="keyword" class="form-control me-2" type="text" name="keyword" placeholder="검색어를 적으세요" required>
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
     </div>
+
+  <script>
+     function valid() {
+     console.log();   
+
+
+
+
+
+
+
+
+
+     }
+
+  </script>
 
     {{#boardList}}
     <div class="card mb-3">

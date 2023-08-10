@@ -22,6 +22,7 @@ public class ReplyController {
     @Autowired
     private ReplyRepository replyRepository;
 
+     // 댓글 삭제 요청에 응답   
      @PostMapping("/reply/{id}/delete")
     public String delete(@PathVariable Integer id, Integer boardId) {
         // 유효성 검사
@@ -47,6 +48,7 @@ public class ReplyController {
         return "redirect:/board/" + boardId;
     }
 
+    // 댓글 쓰기 요청에 응답
     @PostMapping("/reply/save")
     public String save(ReplyWriteDTO replyWriteDTO) {
 
