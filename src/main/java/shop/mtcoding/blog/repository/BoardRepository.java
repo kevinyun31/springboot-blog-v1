@@ -60,7 +60,6 @@ public class BoardRepository {
 		query.setParameter("size", SIZE);
 		
 		return query.getResultList();
-
 	}
 
 	// 보드 게시판 페이지 오버로딩
@@ -73,7 +72,6 @@ public class BoardRepository {
 		query.setParameter("keyword", "%" + keyword + "%");
 		
 		return query.getResultList();
-
 	}
 
 	// save = 글쓰기 화면

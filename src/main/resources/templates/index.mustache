@@ -12,19 +12,20 @@
         </form>
     </div>
 
-  <script>
-     function valid() {
-     console.log();   
+    <script>
+        function isWhitespace(str) {
+            return str.trim() === '';
+        }
 
-
-
-
-
-
-
-
-
-     }
+        function valid() {
+            let keyword = document.querySelector("#keyword").value;
+            console.log(keyword);
+            if (isWhitespace(keyword)) {
+                alert('공백을 입력할 수 없습니다');
+                return false;
+            }
+        }
+    </script>
 
   </script>
 

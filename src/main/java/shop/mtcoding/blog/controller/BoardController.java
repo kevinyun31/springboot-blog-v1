@@ -130,15 +130,15 @@ public class BoardController {
         // 1. 유효성 검사 X
         // 2. 인증검사 X
         // 3. 조회 쿼리만 있으면 됨.
-        System.out.println("테스트 : keyword : " + keyword);
-        System.out.println("테스트 : keyword length : " + keyword.length());
-        System.out.println("테스트 : keyword isEmpty : " + keyword.isEmpty()); // isEmpty
-        System.out.println("테스트 : keyword isBlank : " + keyword.isBlank()); // isBlank
+        // System.out.println("테스트 : keyword : " + keyword);
+        // System.out.println("테스트 : keyword length : " + keyword.length());
+        // System.out.println("테스트 : keyword isEmpty : " + keyword.isEmpty()); // isEmpty
+        // System.out.println("테스트 : keyword isBlank : " + keyword.isBlank()); // isBlank
       
         List<Board> boardList = null;
         int totalCount = 0;
         request.setAttribute("keyword", keyword); // 공백 or 값있음
-        if (keyword == null) {
+        if (keyword.isBlank()) {
             boardList = boardRepository.findAll(page); // 페이지와 관련된 게시물 목록 가져오기
             totalCount = boardRepository.count(); // 모든 게시물 수 가져오기
         } else {
