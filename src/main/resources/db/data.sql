@@ -7,3 +7,9 @@ insert into board_tb(title, content, user_id, created_at) values('222', '내용4
 insert into board_tb(title, content, user_id, created_at) values('제목5', '내용5', 2, now());
 insert into reply_tb(comment, board_id, user_id) values('댓글1-1', 1 , 1);
 insert into reply_tb(comment, board_id, user_id) values('댓글1-2', 1 , 1);
+
+
+
+
+
+

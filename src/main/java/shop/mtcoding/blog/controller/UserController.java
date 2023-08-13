@@ -216,21 +216,17 @@ public class UserController {
             return "redirect:/loginForm"; // 401
         }
 
+        // 왜 findById로 할까?
+        // id는 PK이기 때문에 인덱스를 타기 때문에 username도 PK라서 가능함.
         // 유니크는 인덱스를 탄다.
+
         User user = userRepository.findByUsername(sessionUser.getUsername());
         request.setAttribute("user", user);
-
+      
         return "user/updateForm";
     }
 
-    // 로그아웃
-    @GetMapping("/logout")
-    public String logout() {
-        session.invalidate(); // 세션 무효화 (내 서랍을 비우는 것)
-        return "redirect:/";
-    }
-
-    // 회원수정 할수 있는 기능
+    // 회원수정 요청응답
     @PostMapping("/user/{id}/update")
     public String update(@PathVariable Integer id, UserUpdateDTO userUpdateDTO) {
         // 1.인증검사
@@ -248,6 +244,13 @@ public class UserController {
         // 3.핵심로직 (모델한테 전가한거 받아오고 리턴할 뷰작성)
         // update board_tb set title = :title, content = :content where id = :id
         userRepository.update(id, userUpdateDTO);
+        return "redirect:/user/" + id;
+    }
+
+    // 로그아웃
+    @GetMapping("/logout")
+    public String logout() {
+        session.invalidate(); // 세션 무효화 (내 서랍을 비우는 것)
         return "redirect:/";
     }
 

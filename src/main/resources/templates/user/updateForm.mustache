@@ -4,7 +4,7 @@
   <!--요청을 하면 localhos:8080/join POST로 요청됨
   username=사용자입력값&password=사용자값&email=사용자입력값 -->
       <div class="card">
-        <div class="card-header"><b>회원수정을 해주세요</b></div>
+        <div class="card-header"><b>회원수정을 위해 비밀번호를 입력하세요</b></div>
         <div class="card-body">
             <form action="/user/update" method="post" enctype="application/x-www-form-urlencoded">
                 <div class="mb-3">
@@ -16,7 +16,7 @@
                 <div class="mb-3">
                     <input type="email" class="form-control" placeholder="Enter email" name="email" disabled value="{{user.email}}">
                 </div>
-                <button type="submit" class="btn btn-primary form-control">회원가입수정</button>
+                <button type="submit" class="btn btn-primary form-control">회원정보수정</button>
             </form>
         </div>
     </div>
